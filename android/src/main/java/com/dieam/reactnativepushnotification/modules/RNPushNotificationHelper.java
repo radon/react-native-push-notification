@@ -366,8 +366,11 @@ public class RNPushNotificationHelper {
             }
 
             String message = bundle.getString("message");
+            String translatedMessage = null;
+            int resourceId = context.getResources().getIdentifier(bundle.getString("message"), "string", context.getPackageName());
+            if (resourceId != 0) translatedMessage = context.getString(resourceId);
 
-            notification.setContentText(message);
+            notification.setContentText(translatedMessage != null ? translatedMessage : message);
 
             String subText = bundle.getString("subText");
 
