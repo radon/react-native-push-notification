@@ -207,9 +207,11 @@ public class RNPushNotificationHelper {
             }
 
             if (bundle.getString("message") == null) {
-                // this happens when a 'data' notification is received - we do not synthesize a local notification in this case
-                Log.d(LOG_TAG, "Ignore this message if you sent data-only notification. Cannot send to notification centre because there is no 'message' field in: " + bundle);
-                return;
+                if (bundle.getBundle("data").getString("message") == null) {
+                    // this happens when a 'data' notification is received - we do not synthesize a local notification in this case
+                    Log.d(LOG_TAG, "Ignore this message if you sent data-only notification. Cannot send to notification centre because there is no 'message' field in: " + bundle);
+                    return;
+                }
             }
 
             String notificationIdString = bundle.getString("id");
@@ -366,11 +368,17 @@ public class RNPushNotificationHelper {
             }
 
             String message = bundle.getString("message");
+            if (message == null) {
+                message = bundle.getBundle("data").getString("message");
+            }
             String translatedMessage = null;
-            int resourceId = context.getResources().getIdentifier(bundle.getString("message"), "string", context.getPackageName());
+            int resourceId = context.getResources().getIdentifier(message, "string", context.getPackageName());
             if (resourceId != 0) translatedMessage = context.getString(resourceId);
-
-            notification.setContentText(translatedMessage != null ? translatedMessage : message);
+            
+            if (translatedMessage != null) {
+                message = translatedMessage;
+            }
+            notification.setContentText(message);
 
             String subText = bundle.getString("subText");
 
